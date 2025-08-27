@@ -1,0 +1,82 @@
+# version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+      - rabbitmq_log:/var/log/rabbitmq
+    restart: unless-stopped
+
+  customer:
+    build:
+      context: ./customer
+      dockerfile: Dockerfile
+    container_name: customer
+    ports:
+      - "8005:8005"
+    depends_on:
+      - mongo
+      - rabbitmq
+    env_file:
+      - ./customer/.env
+    restart: unless-stopped
+
+  products:
+    build:
+      context: ./products
+      dockerfile: Dockerfile
+    container_name: products
+    ports:
+      - "8006:8006"
+    depends_on:
+      - mongo
+      - rabbitmq
+    env_file:
+      - ./products/.env
+    restart: unless-stopped
+
+  shopping:
+    build:
+      context: ./shopping
+      dockerfile: Dockerfile
+    container_name: shopping
+    ports:
+      - "8007:8007"
+    depends_on:
+      - mongo
+      - rabbitmq
+    env_file:
+      - ./shopping/.env
+    restart: unless-stopped
+
+  nginx-proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    container_name: nginx-proxy
+    depends_on:
+      - products
+      - customer
+      - shopping
+    ports:
+      - "81:81"
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+  rabbitmq_data:
+  rabbitmq_log:
