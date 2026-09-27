@@ -3,19 +3,21 @@
 services:
   mongo:
     image: mongo:6.0
+    profiles: ["local-dependencies"]
     container_name: mongo
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
+    profiles: ["local-dependencies"]
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/mnesia
       - rabbitmq_log:/var/log/rabbitmq
@@ -27,7 +29,7 @@ services:
       dockerfile: Dockerfile
     container_name: customer
     ports:
-      - "8005:8005"
+      - "127.0.0.1:8005:8005"
     depends_on:
       - mongo
       - rabbitmq
@@ -41,7 +43,7 @@ services:
       dockerfile: Dockerfile
     container_name: products
     ports:
-      - "8006:8006"
+      - "127.0.0.1:8006:8006"
     depends_on:
       - mongo
       - rabbitmq
@@ -55,7 +57,7 @@ services:
       dockerfile: Dockerfile
     container_name: shopping
     ports:
-      - "8007:8007"
+      - "127.0.0.1:8007:8007"
     depends_on:
       - mongo
       - rabbitmq
@@ -73,7 +75,7 @@ services:
       - customer
       - shopping
     ports:
-      - "81:81"
+      - "127.0.0.1:81:81"
     restart: unless-stopped
 
 volumes:

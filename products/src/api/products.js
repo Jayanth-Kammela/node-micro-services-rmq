@@ -1,4 +1,5 @@
 import ProductService from '../services/product-service.js';
+import { STATUS_CODES } from '../utils/app-errors.js';
 import { RPCObserver } from '../utils/index.js';
 
 export default async function (app, channel) {
@@ -23,7 +24,7 @@ export default async function (app, channel) {
     try {
       const { name, desc, type, unit, price, available, supplier, banner } = req.body;
       const { data } = await service.CreateProduct({ name, desc, type, unit, price, available, supplier, banner });
-      return res.json(data);
+      return res.status(STATUS_CODES.CREATED).json(data);
     } catch (err) {
       next(err);
     }
